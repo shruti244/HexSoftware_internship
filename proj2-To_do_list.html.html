@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ddd;
+        }
+
+        button.delete {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.delete:hover {
+            background-color: #e60000;
+        }
+
+        button.complete {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.complete:hover {
+            background-color: #45a049;
+        }
+
+        button.edit {
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.edit:hover {
+            background-color: #e67e22;
+        }
+
+        li.completed {
+            text-decoration: line-through;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <input type="text" id="taskInput" placeholder="Enter a task...">
+        <button id="addBtn">Add Task</button>
+        <ul id="taskList"></ul>
+    </div>
+
+    <script>
+        // Select the elements
+        const taskInput = document.getElementById("taskInput");
+        const addBtn = document.getElementById("addBtn");
+        const taskList = document.getElementById("taskList");
+
+        // Load tasks from local storage
+        document.addEventListener("DOMContentLoaded", loadTasks);
+
+        // Add new task
+        addBtn.addEventListener("click", function() {
+            const taskText = taskInput.value.trim();
+            if (taskText !== "") {
+                const task = {
+                    text: taskText,
+                    completed: false
+                };
+                addTaskToList(task);
+                saveTaskToLocalStorage(task);
+                taskInput.value = "";
+            }
+        });
+
+        // Create and append task to the list
+        function addTaskToList(task) {
+            const li = document.createElement("li");
+            li.classList.toggle("completed", task.completed);
+
+            const taskText = document.createElement("span");
+            taskText.textContent = task.text;
+            li.appendChild(taskText);
+
+            const completeBtn = document.createElement("button");
+            completeBtn.textContent = "Complete";
+            completeBtn.classList.add("complete");
+            li.appendChild(completeBtn);
+
+            const editBtn = document.createElement("button");
+            editBtn.textContent = "Edit";
+            editBtn.classList.add("edit");
+            li.appendChild(editBtn);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.classList.add("delete");
+            li.appendChild(deleteBtn);
+
+            taskList.appendChild(li);
+            
+            // Complete button functionality
+            completeBtn.addEventListener("click", () => {
+                task.completed = !task.completed;
+                li.classList.toggle("completed", task.completed);
+                updateLocalStorage();
+            });
+
+            // Edit button functionality
+            editBtn.addEventListener("click", () => {
+                taskInput.value = task.text;
+                addBtn.textContent = "Save Changes";
+                addBtn.onclick = function() {
+                    task.text = taskInput.value.trim();
+                    taskText.textContent = task.text;
+                    updateLocalStorage();
+                    taskInput.value = "";
+                    addBtn.textContent = "Add Task";
+                    addBtn.onclick = addTask;
+                };
+            });
+
+            // Delete button functionality
+            deleteBtn.addEventListener("click", () => {
+                taskList.removeChild(li);
+                removeTaskFromLocalStorage(task.text);
+            });
+        }
+
+        // Save task to local storage
+        function saveTaskToLocalStorage(task) {
+            let tasks = getTasksFromLocalStorage();
+            tasks.push(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // Get tasks from local storage
+        function getTasksFromLocalStorage() {
+            return JSON.parse(localStorage.getItem("tasks")) || [];
+        }
+
+        // Update tasks in local storage
+        function updateLocalStorage() {
+            const tasks = [];
+            document.querySelectorAll("li").forEach(li => {
+                const taskText = li.querySelector("span").textContent;
+                const taskCompleted = li.classList.contains("completed");
+                tasks.push({
+                    text: taskText,
+                    completed: taskCompleted
+                });
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // Remove task from local storage
+        function removeTaskFromLocalStorage(taskText) {
+            let tasks = getTasksFromLocalStorage();
+            tasks = tasks.filter(task => task.text !== taskText);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        // Load tasks from local storage and display them
+        function loadTasks() {
+            const tasks = getTasksFromLocalStorage();
+            tasks.forEach(task => addTaskToList(task));
+        }
+    </script>
+</body>
+</html>
