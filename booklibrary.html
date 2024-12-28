@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Book Library</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Book Library</h1>
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Search for a book...">
+        </div>
+        <div class="book-form">
+            <input type="text" id="title" placeholder="Book Title" required>
+            <input type="text" id="author" placeholder="Author" required>
+            <input type="text" id="category" placeholder="Category" required>
+            <button id="addBook">Add Book</button>
+        </div>
+        <h2>Books</h2>
+        <ul id="bookList"></ul>
+        <h2>Borrowing History</h2>
+        <ul id="borrowHistory"></ul>
+        <h2>Browsing History</h2>
+        <ul id="browsingHistory"></ul>
+    </div>
+    <script>
+        let books = [];
+        let borrowHistory = [];
+        let browsingHistory = [];
+
+        document.getElementById('addBook').addEventListener('click', addBook);
+        document.getElementById('search').addEventListener('input', searchBooks);
+
+        function addBook() {
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+            const category = document.getElementById('category').value.trim();
+
+            if (title && author && category) {
+                const book = { title, author, category };
+                books.push(book);
+                displayBooks();
+                clearForm();
+            } else {
+                alert('Please fill in all fields');
+            }
+        }
+
+        function displayBooks() {
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+
+            books.forEach((book, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${book.title} by ${book.author} [${book.category}]`;
+                li.addEventListener('click', () => borrowBook(index));
+                bookList.appendChild(li);
+            });
+
+            // Update browsing history
+            updateBrowsingHistory();
+        }
+
+        function borrowBook(index) {
+            const book = books[index];
+            borrowHistory.push(book);
+            books.splice(index, 1);
+            displayBooks();
+            displayBorrowHistory();
+        }
+
+        function displayBorrowHistory() {
+            const borrowHistoryList = document.getElementById('borrowHistory');
+            borrowHistoryList.innerHTML = '';
+
+            borrowHistory.forEach(book => {
+                const li = document.createElement('li');
+                li.textContent = `${book.title} by ${book.author} [${book.category}]`;
+                borrowHistoryList.appendChild(li);
+            });
+        }
+
+        function updateBrowsingHistory() {
+            const browsingHistoryList = document.getElementById('browsingHistory');
+            browsing
